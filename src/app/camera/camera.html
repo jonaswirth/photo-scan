@@ -1,0 +1,15 @@
+<div>
+    <video id="video" autoplay></video>
+</div>
+<button routerLink="" matButton="outlined">
+    <mat-icon aria-label="Take photo" fontIcon="cancel"></mat-icon>
+    Cancel
+</button>
+<button (click)="capture()" matButton="outlined">
+    <mat-icon aria-label="Take photo" fontIcon="camera_alt"></mat-icon>
+    OK
+</button>
+<div class="output">
+    <img id="debug" src="" alt="debug screen" />
+</div>
+<canvas style="display: none;" id="canvas"></canvas>

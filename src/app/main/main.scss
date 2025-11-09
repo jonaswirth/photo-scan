@@ -1,0 +1,10 @@
+.preview {
+    display: block;
+    //TODO: variable dimensions with fixed aspect ratio 1:sqrt(2)
+    width: 300px;
+    height: 424px;
+    background-color: white;
+    border: 1px solid #333;
+    margin: 5px;
+    text-align: center;
+}
