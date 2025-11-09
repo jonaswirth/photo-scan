@@ -1,7 +1,8 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { PrcoessingService as ProcessingService } from '../processing.service';
 
 @Component({
   selector: 'app-camera',
@@ -10,6 +11,9 @@ import { RouterLink } from '@angular/router';
   styleUrl: './camera.scss',
 })
 export class Camera implements OnInit, OnDestroy {
+  private processingService = inject(ProcessingService)
+  private router = inject(Router)
+
   private video: HTMLVideoElement | undefined;
   private canvas: HTMLCanvasElement | undefined;
   private debugImage: HTMLImageElement | undefined;
@@ -22,7 +26,6 @@ export class Camera implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.video = document.getElementById("video") as HTMLVideoElement
     this.canvas = document.getElementById("canvas") as HTMLCanvasElement
-    this.debugImage = document.getElementById("debug") as HTMLImageElement
 
     navigator.mediaDevices?.getUserMedia({
       video: { width: { exact: this.width }, height: { exact: this.height } },
@@ -36,9 +39,6 @@ export class Camera implements OnInit, OnDestroy {
 
         this.video.setAttribute("width", `${this.width}px`)
         this.video.setAttribute("height", `${this.height}px`)
-
-        console.log(this.width)
-        console.log(this.height)
       })
       .catch((error) => {
         console.log(error)
@@ -50,15 +50,12 @@ export class Camera implements OnInit, OnDestroy {
   }
 
   capture(): void {
-    console.log(this.video)
-    console.log(this.canvas)
-    console.log(this.debugImage)
-
     const context = this.canvas?.getContext("2d")
 
     context?.drawImage(this.video!, 0, 0, this.width, this.height)
     const data = this.canvas?.toDataURL("image/png")
 
-    this.debugImage!.src = data!.toString()
+    this.processingService.currentImage = data;
+    this.router.navigate(['/processing'])
   }
 }
