@@ -1,5 +1,6 @@
 <div>
-    <video id="video" autoplay></video>
+    <!--TODO: Set size correctly-->
+    <video style="width: 300px; height: 424px;" id="video" autoplay></video>
 </div>
 <button routerLink="" matButton="outlined">
     <mat-icon aria-label="Take photo" fontIcon="cancel"></mat-icon>
@@ -12,4 +13,4 @@
 <div class="output">
     <img id="debug" src="" alt="debug screen" />
 </div>
-<canvas style="display: none;" id="canvas"></canvas>
+<canvas [width]="width" [height]="height" style="display: none;" id="canvas"></canvas>

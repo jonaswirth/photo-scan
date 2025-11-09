@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
@@ -9,26 +9,31 @@ import { RouterLink } from '@angular/router';
   templateUrl: './camera.html',
   styleUrl: './camera.scss',
 })
-export class Camera implements OnInit {
+export class Camera implements OnInit, OnDestroy {
   private video: HTMLVideoElement | undefined;
   private canvas: HTMLCanvasElement | undefined;
   private debugImage: HTMLImageElement | undefined;
+  private mediaStream: MediaStream | undefined;
 
-  private width = 500; //fixed
-  private height = 500; //calculated based on aspect ratio
+  //TODO: Set resolution dynamically
+  width = 500;
+  height = 707;
 
   ngOnInit(): void {
     this.video = document.getElementById("video") as HTMLVideoElement
     this.canvas = document.getElementById("canvas") as HTMLCanvasElement
     this.debugImage = document.getElementById("debug") as HTMLImageElement
 
-    navigator.mediaDevices?.getUserMedia({ video: true })
+    navigator.mediaDevices?.getUserMedia({
+      video: { width: { exact: this.width }, height: { exact: this.height } },
+    })
       .then((localMediaStream) => {
         if (this.video == null) {
           throw "Video element not found"
         }
-        this.video.srcObject = localMediaStream
-        //this.height = this.video.videoHeight / (this.video.videoWidth / this.width)
+        this.mediaStream = localMediaStream
+        this.video.srcObject = this.mediaStream
+
         this.video.setAttribute("width", `${this.width}px`)
         this.video.setAttribute("height", `${this.height}px`)
 
@@ -40,8 +45,11 @@ export class Camera implements OnInit {
       })
   }
 
-  capture(): void {
+  ngOnDestroy(): void {
+    this.mediaStream?.getVideoTracks().forEach(s => s.stop())
+  }
 
+  capture(): void {
     console.log(this.video)
     console.log(this.canvas)
     console.log(this.debugImage)
