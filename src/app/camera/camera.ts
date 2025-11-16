@@ -51,11 +51,9 @@ export class Camera implements OnInit, OnDestroy {
 
   capture(): void {
     const context = this.canvas?.getContext("2d")
-
     context?.drawImage(this.video!, 0, 0, this.width, this.height)
-    const data = this.canvas?.toDataURL("image/png")
 
-    this.processingService.currentImage = data;
+    this.processingService.currentImage = this.canvas
     this.router.navigate(['/processing'])
   }
 }
