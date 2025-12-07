@@ -65,6 +65,17 @@ export class PrcoessingService {
     cv.HoughLines(mat, lines, 1, Math.PI / 180, 40, 0, 0, 0, Math.PI)
 
     let mappedLines = this.mapLines(lines)
+
+    //If rho is negative, flip its sign and correct theta, see: https://stackoverflow.com/questions/24752497/math-average-out-lines-in-polar-coordinate-system-c-opencv
+    //TODO: this isn't a good solution as we lose some precision here 
+    for (let line of mappedLines) {
+      if (line.rho < 0) {
+        line.rho = Math.abs(line.rho)
+        line.theta = 0
+      }
+    }
+
+    // Distinguish between horizontal and vertical lines, based only on theta
     // Convert angles to coordinates on unit cycle, see: https://stackoverflow.com/questions/46565975/find-intersection-point-of-two-lines-drawn-using-houghlines-opencv
     let thetas = mappedLines.map(x => [Math.cos(x.theta * 2), Math.sin(x.theta * 2)])
     console.log(thetas)
@@ -89,10 +100,8 @@ export class PrcoessingService {
       }
     }
 
-    console.log("Horizontal", horizontalLines)
-    console.log("Vertical", verticalLines)
-
-    const verticalMat = cv.matFromArray(verticalLines.length, 1, cv.CV_32F, verticalLines.map(x => [x.theta]).flat())
+    //Seperate each group (vertical, horizontal) into two parallel lines, based only on rho
+    const verticalMat = cv.matFromArray(verticalLines.length, 1, cv.CV_32F, verticalLines.map(x => [x.rho]).flat())
     const verticalLabels = new cv.Mat()
     const verticalCenters = new cv.Mat()
     cv.kmeans(verticalMat, 2, verticalLabels, criteria, 10, 0, verticalCenters)
@@ -100,7 +109,6 @@ export class PrcoessingService {
     const verticalLeft = []
     const verticalRight = []
 
-    // Separation doesn't work properly because of negative thetas
     for (let i = 0; i < verticalLabels.rows; i++) {
       if (verticalLabels.data32S[i] == 1) {
         verticalLeft.push(verticalLines[i])
@@ -109,7 +117,7 @@ export class PrcoessingService {
       }
     }
 
-    const horizontalMat = cv.matFromArray(horizontalLines.length, 1, cv.CV_32F, horizontalLines.map(x => [x.theta]).flat())
+    const horizontalMat = cv.matFromArray(horizontalLines.length, 1, cv.CV_32F, horizontalLines.map(x => [x.rho]).flat())
     const horizontalLabels = new cv.Mat()
     const horizontalCenters = new cv.Mat()
     cv.kmeans(horizontalMat, 2, horizontalLabels, criteria, 10, 0, horizontalCenters)
@@ -129,10 +137,10 @@ export class PrcoessingService {
     console.log("H B", horizontalBottom)
 
     const finalLines = []
-    finalLines.push(verticalLeft[0])
-    finalLines.push(verticalRight[0])
-    finalLines.push(horizontalTop[0])
-    finalLines.push(horizontalBottom[0])
+    finalLines.push(this.averageLines(verticalLeft))
+    finalLines.push(this.averageLines(verticalRight))
+    finalLines.push(this.averageLines(horizontalTop))
+    finalLines.push(this.averageLines(horizontalBottom))
 
     console.log(finalLines)
 
@@ -145,6 +153,21 @@ export class PrcoessingService {
       lines.push({ rho: mat.data32F[i * 2], theta: mat.data32F[i * 2 + 1] })
     }
     return lines;
+  }
+
+  private averageLines(lines: { rho: number, theta: number }[]): { rho: number, theta: number } {
+    let mean_rho = 0
+    let mean_theta = 0
+
+    for (let line of lines) {
+      mean_rho += line.rho
+      mean_theta += line.theta
+    }
+
+    return {
+      rho: mean_rho / lines.length,
+      theta: mean_theta / lines.length
+    }
   }
 
   private getIntersections() {
