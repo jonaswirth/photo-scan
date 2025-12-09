@@ -67,11 +67,11 @@ export class PrcoessingService {
     let mappedLines = this.mapLines(lines)
 
     //If rho is negative, flip its sign and correct theta, see: https://stackoverflow.com/questions/24752497/math-average-out-lines-in-polar-coordinate-system-c-opencv
-    //TODO: this isn't a good solution as we lose some precision here 
     for (let line of mappedLines) {
       if (line.rho < 0) {
         line.rho = Math.abs(line.rho)
-        line.theta = 0
+        //TODO: not sure if this approach works in every case. Could lead to negative theta in the result?
+        line.theta = line.theta - Math.PI
       }
     }
 
