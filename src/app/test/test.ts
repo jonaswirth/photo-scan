@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { PrcoessingService } from '../processing.service';
+import { ProcessingService } from '../processing.service';
 import cv from "@techstark/opencv-js"
 
 @Component({
@@ -9,7 +9,7 @@ import cv from "@techstark/opencv-js"
   styleUrl: './test.scss',
 })
 export class Test implements OnInit {
-  processingService = inject(PrcoessingService)
+  processingService = inject(ProcessingService)
 
   ngOnInit(): void {
     cv.onRuntimeInitialized = () => this.processImage()

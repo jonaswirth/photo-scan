@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 import cv, { CV_32F } from "@techstark/opencv-js";
+import { Line, Point } from './types';
 
 @Injectable({
   providedIn: 'root',
 })
-export class PrcoessingService {
+export class ProcessingService {
   public currentImage: HTMLCanvasElement | undefined
   public processedImages: string[] = []
 
@@ -27,7 +28,9 @@ export class PrcoessingService {
     cv.Canny(dst, dst, 200, 300)
 
     //return dst
-    let lines = this.findLines(dst)
+    let points = this.findEdges(dst)
+
+    console.log(points)
 
 
     //console.log(clusterCenters)
@@ -36,19 +39,8 @@ export class PrcoessingService {
     const colors = [[255, 0, 0, 255], [0, 255, 0, 255], [0, 0, 255, 255], [255, 255, 0, 255], [0, 0, 0, 0]]
 
     // draw lines
-    for (let i = 0; i < lines.length; ++i) {
-      let rho = lines[i].rho
-      let theta = lines[i].theta
-      let a = Math.cos(theta);
-      let b = Math.sin(theta);
-      let x0 = a * rho;
-      let y0 = b * rho;
-      let startPoint = { x: x0 - 1000 * b, y: y0 + 1000 * a };
-      let endPoint = { x: x0 + 1000 * b, y: y0 - 1000 * a };
-
-      let color = colors[i]
-
-      cv.line(src, startPoint, endPoint, color);
+    for (let i = 0; i < points.length; ++i) {
+      cv.circle(src, { x: points[i].x, y: points[i].y }, 5, colors[i], 2)
     }
 
     return src
@@ -60,7 +52,7 @@ export class PrcoessingService {
    * @returns 
    */
   //TODO: refactor this horrible code
-  private findLines(mat: cv.Mat): { rho: number, theta: number }[] {
+  private findEdges(mat: cv.Mat): Point[] {
     let lines = new cv.Mat()
     cv.HoughLines(mat, lines, 1, Math.PI / 180, 40, 0, 0, 0, Math.PI)
 
@@ -136,18 +128,25 @@ export class PrcoessingService {
     console.log("H T", horizontalTop)
     console.log("H B", horizontalBottom)
 
-    const finalLines = []
-    finalLines.push(this.averageLines(verticalLeft))
-    finalLines.push(this.averageLines(verticalRight))
-    finalLines.push(this.averageLines(horizontalTop))
-    finalLines.push(this.averageLines(horizontalBottom))
+    const left = this.averageLines(verticalLeft)
+    const right = this.averageLines(verticalRight)
+    const top = this.averageLines(horizontalTop)
+    const bottom = this.averageLines(horizontalBottom)
 
-    console.log(finalLines)
+    console.log(left)
+    console.log(right)
+    console.log(top)
+    console.log(bottom)
 
-    return finalLines
+    const topLeft = this.findIntersection(top, left)
+    const topRight = this.findIntersection(top, right)
+    const bottomLeft = this.findIntersection(bottom, left)
+    const bottomRight = this.findIntersection(bottom, right)
+
+    return [topLeft, topRight, bottomLeft, bottomRight]
   }
 
-  private mapLines(mat: cv.Mat): { rho: number, theta: number }[] {
+  private mapLines(mat: cv.Mat): Line[] {
     const lines = []
     for (let i = 0; i < mat.rows; i++) {
       lines.push({ rho: mat.data32F[i * 2], theta: mat.data32F[i * 2 + 1] })
@@ -155,7 +154,7 @@ export class PrcoessingService {
     return lines;
   }
 
-  private averageLines(lines: { rho: number, theta: number }[]): { rho: number, theta: number } {
+  private averageLines(lines: Line[]): Line {
     let mean_rho = 0
     let mean_theta = 0
 
@@ -170,7 +169,31 @@ export class PrcoessingService {
     }
   }
 
-  private getIntersections() {
+  //Calculate intersection given two points on each line: https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection#Given_two_points_on_each_line
+  private findIntersection(line1: Line, line2: Line): Point {
+    let a = Math.cos(line1.theta);
+    let b = Math.sin(line1.theta);
+    let x = a * line1.rho;
+    let y = b * line1.rho;
 
+    let x1 = x - 100 * b
+    let y1 = y + 100 * a
+    let x2 = x + 100 * b
+    let y2 = x - 100 * a
+
+    a = Math.cos(line2.theta)
+    b = Math.sin(line2.theta)
+    x = a * line2.rho
+    y = b * line2.rho
+
+    let x3 = x - 100 * b
+    let y3 = y + 100 * a
+    let x4 = x + 100 * b
+    let y4 = y - 100 * a
+
+    return {
+      x: ((x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4)) / ((x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4)),
+      y: ((x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4)) / ((x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4))
+    }
   }
 }

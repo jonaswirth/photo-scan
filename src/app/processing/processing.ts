@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { PrcoessingService as ProcessingService } from '../processing.service';
+import { ProcessingService as ProcessingService } from '../processing.service';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { Router } from '@angular/router';
