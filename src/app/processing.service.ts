@@ -9,7 +9,7 @@ export class ProcessingService {
   public currentImage: HTMLCanvasElement | undefined
   public processedImages: string[] = []
 
-  public processImage(input: cv.Mat): cv.Mat {
+  public processImage(input: cv.Mat): Point[] {
     let src = input
     let dst = new cv.Mat()
     src.copyTo(dst)
@@ -28,22 +28,7 @@ export class ProcessingService {
     cv.Canny(dst, dst, 200, 300)
 
     //return dst
-    let points = this.findEdges(dst)
-
-    console.log(points)
-
-
-    //console.log(clusterCenters)
-    //lines = clusterCenters
-
-    const colors = [[255, 0, 0, 255], [0, 255, 0, 255], [0, 0, 255, 255], [255, 255, 0, 255], [0, 0, 0, 0]]
-
-    // draw lines
-    for (let i = 0; i < points.length; ++i) {
-      cv.circle(src, { x: points[i].x, y: points[i].y }, 5, colors[i], 2)
-    }
-
-    return src
+    return this.findEdges(dst)
   }
 
   /**

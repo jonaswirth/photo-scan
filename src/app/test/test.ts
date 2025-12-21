@@ -23,9 +23,13 @@ export class Test implements OnInit {
     console.log(cv.getBuildInformation())
     const mat = cv.imread(sourceImg!)
 
-    const proc = this.processingService.processImage(mat)
-    cv.imshow(canvas!, proc)
+    const edges = this.processingService.processImage(mat)
 
+    const ctx = canvas.getContext("2d");
+    ctx?.drawImage(sourceImg as CanvasImageSource, 0, 0, 300, 500)
+    for (const edge of edges) {
+      ctx?.fillRect(edge.x - 5, edge.y - 5, 10, 10)
+    }
   }
 
 }

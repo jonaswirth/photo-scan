@@ -27,7 +27,7 @@ export class Processing implements OnInit {
     const mat = cv.imread(canvas!)
 
     const proc = this.processingService.processImage(mat)
-    cv.imshow(canvas!, proc)
+    //cv.imshow(canvas!, proc)
   }
 
   confirm() {
