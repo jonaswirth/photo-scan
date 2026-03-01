@@ -26,7 +26,7 @@ export class Test implements OnInit {
     const edges = this.processingService.processImage(mat)
 
     const ctx = canvas.getContext("2d");
-    ctx?.drawImage(sourceImg as CanvasImageSource, 0, 0, 300, 500)
+    ctx?.drawImage(sourceImg as CanvasImageSource, 0, 0, 347, 462)
     for (const edge of edges) {
       ctx?.fillRect(edge.x - 5, edge.y - 5, 10, 10)
     }
