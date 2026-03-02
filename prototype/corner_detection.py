@@ -4,7 +4,8 @@ import matplotlib.pyplot as plt
 import math
 
 
-DOWNSAMPLE_WIDTH = 400
+# TODO: tune downsample width. Find smallest width that still results in decent enough accuracy
+DOWNSAMPLE_WIDTH = 800
 
 def main():
     # Read image, convert from BGR to RGB
@@ -63,8 +64,8 @@ def main():
     print(f"corners: {corners}")
 
     for corner in corners:
-        cx = int(corner[0,0])
-        cy = int(corner[0, 1])
+        cx = int(round(corner[0, 0]))
+        cy = int(round(corner[0, 1]))
         print(cx, cy)
         img_original = cv.circle(img_original, (cx, cy), 25, (255, 0, 0), thickness=-1)
 
