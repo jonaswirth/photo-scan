@@ -1,7 +1,6 @@
 import numpy as np
 import cv2 as cv
 import matplotlib.pyplot as plt
-import math
 
 
 # TODO: tune downsample width. Find smallest width that still results in decent enough accuracy
