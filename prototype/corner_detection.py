@@ -28,7 +28,8 @@ def main():
     plt.show()
 
     ## Blur
-    kernel = np.ones((6,6),np.float32)/36
+    kernel_size = 7
+    kernel = np.ones((kernel_size, kernel_size),np.float32)/kernel_size ** 2
     img = cv.filter2D(img, -1, kernel)
     plt.imshow(img, cmap="gray")
     plt.show()
