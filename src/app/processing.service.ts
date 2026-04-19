@@ -26,6 +26,7 @@ export class ProcessingService {
     const input_width = dst.cols
     const new_width = DOWNSAMPLE_WIDTH
     const new_height = Math.round(new_width * (input_height / input_width))
+    const scale_ratio = input_width / new_width
 
     cv.resize(dst, dst, new cv.Size(new_width, new_height))
     console.log("Debug: resize")
@@ -62,6 +63,7 @@ export class ProcessingService {
 
     console.log(`Debug: found ${contours.size()} contour(s)`)
 
+    let corners: Point[] = []
     for (let i = 0; i < contours.size(); i++) {
       const contour = contours.get(i)
       let arc_len = cv.arcLength(contour, true)
@@ -69,12 +71,17 @@ export class ProcessingService {
       cv.approxPolyDP(contour, approx, 0.02 * arc_len, true)
 
       if (approx.rows === 4) {
-        console.log("Found document")
-        console.log(approx.data32S)
+        corners = [
+          { x: approx.data32S[0] * scale_ratio, y: approx.data32S[1] * scale_ratio },
+          { x: approx.data32S[2] * scale_ratio, y: approx.data32S[3] * scale_ratio },
+          { x: approx.data32S[4] * scale_ratio, y: approx.data32S[5] * scale_ratio },
+          { x: approx.data32S[6] * scale_ratio, y: approx.data32S[7] * scale_ratio },
+        ]
+        break;
       }
     }
-
-    return []
+    console.log(corners)
+    return corners;
   }
 
   private debugMat(mat: cv.Mat): void {
