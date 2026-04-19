@@ -22,11 +22,13 @@ export class Processing implements OnInit {
   ngOnInit(): void {
     const canvas = document.getElementById("canvas") as HTMLCanvasElement
     const context = canvas!.getContext("2d")
-    context?.drawImage(this.currentImage!, 0, 0, 500, 707)
+
+    cv.imshow(canvas, this.currentImage!)
 
     const mat = cv.imread(canvas!)
 
-    const proc = this.processingService.findCorners(mat)
+    this.processingService.currentImage = mat
+    const proc = this.processingService.findCorners()
     //cv.imshow(canvas!, proc)
   }
 

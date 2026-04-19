@@ -3,6 +3,7 @@ import { Main } from './main/main';
 import { Camera } from './camera/camera';
 import { Processing } from './processing/processing';
 import { Test } from './test/test';
+import { Corners } from './corners/corners';
 
 export const routes: Routes = [
     {
@@ -22,5 +23,8 @@ export const routes: Routes = [
     }, {
         path: 'test',
         component: Test
+    }, {
+        path: 'corners',
+        component: Corners
     }
 ];

@@ -1,19 +1,23 @@
 import { Injectable } from '@angular/core';
-import cv, { CV_32F } from "@techstark/opencv-js";
+import cv, { CV_32F, Exception } from "@techstark/opencv-js";
 import { Line, Point } from './types';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProcessingService {
-  public currentImage: HTMLCanvasElement | undefined
+  public currentImage?: cv.Mat;
+  public currentImageCorners?: Point[]
   public processedImages: string[] = []
 
   // See prototype/corner_detection.py
-  public findCorners(input: cv.Mat): Point[] {
+  public findCorners(): Point[] {
+    if (!this.currentImage) {
+      throw Error("Image not set")
+    }
     console.log("Debug: start find corners")
     // Input
-    let src = input
+    let src = this.currentImage
     let dst = new cv.Mat()
     src.copyTo(dst)
 
@@ -70,6 +74,8 @@ export class ProcessingService {
       let approx = new cv.Mat()
       cv.approxPolyDP(contour, approx, 0.02 * arc_len, true)
 
+      //TODO: if more than one contours with 4 points are detected decide which one is the document
+
       if (approx.rows === 4) {
         corners = [
           { x: approx.data32S[0] * scale_ratio, y: approx.data32S[1] * scale_ratio },
@@ -77,10 +83,11 @@ export class ProcessingService {
           { x: approx.data32S[4] * scale_ratio, y: approx.data32S[5] * scale_ratio },
           { x: approx.data32S[6] * scale_ratio, y: approx.data32S[7] * scale_ratio },
         ]
-        break;
+        console.log(corners)
       }
     }
-    console.log(corners)
+
+    this.currentImageCorners = corners
     return corners;
   }
 
@@ -89,6 +96,9 @@ export class ProcessingService {
   }
 
   private visualizeMat(mat: cv.Mat): void {
-    cv.imshow("debug-canvas", mat)
+    const debugCanvas = document.getElementById("debug-canvas")
+    if (debugCanvas) {
+      cv.imshow("debug-canvas", mat)
+    }
   }
 }

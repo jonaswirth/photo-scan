@@ -3,6 +3,7 @@ import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { Router, RouterLink } from '@angular/router';
 import { ProcessingService as ProcessingService } from '../processing.service';
+import cv from "@techstark/opencv-js"
 
 @Component({
   selector: 'app-camera',
@@ -53,7 +54,13 @@ export class Camera implements OnInit, OnDestroy {
     const context = this.canvas?.getContext("2d")
     context?.drawImage(this.video!, 0, 0, this.width, this.height)
 
-    this.processingService.currentImage = this.canvas
+    const mat = cv.imread(this.canvas!)
+
+    this.processingService.currentImage = mat;
+    const corners = this.processingService.findCorners()
+
+    console.log("CORNERS:", corners)
+
     this.router.navigate(['/processing'])
   }
 }

@@ -1,6 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { ProcessingService } from '../processing.service';
 import cv from "@techstark/opencv-js"
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-test',
@@ -9,24 +10,16 @@ import cv from "@techstark/opencv-js"
   styleUrl: './test.scss',
 })
 export class Test {
-  processingService = inject(ProcessingService)
+  private processingService = inject(ProcessingService)
+  private router = inject(Router)
 
   processImage(): void {
     const sourceImg = document.getElementById("img")
     const mat = cv.imread(sourceImg!)
 
-    const edges = this.processingService.findCorners(mat)
+    this.processingService.currentImage = mat
+    const edges = this.processingService.findCorners()
 
-    // const canvas = document.getElementById("canvas") as HTMLCanvasElement
-    // console.log("READ")
-    // console.log(cv.getBuildInformation())
-
-
-    // const ctx = canvas.getContext("2d");
-    // ctx?.drawImage(sourceImg as CanvasImageSource, 0, 0, 347, 462)
-    // for (const edge of edges) {
-    //   ctx?.fillRect(edge.x - 5, edge.y - 5, 10, 10)
-    // }
+    this.router.navigate(["/corners"])
   }
-
 }
