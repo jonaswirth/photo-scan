@@ -1,5 +1,12 @@
 <div id="preview">
-    No preview available start by uploading an image or take a photo with your camera.
+    @if(!processingService.processedImages.length){
+    <p>No preview available start by uploading an image or take a photo with your camera.</p>
+    }
+    @else{
+    <p>preview not implemented</p>
+    <p>{{currentIndex}} / {{processingService.processedImages.length}}</p>
+    }
+
 </div>
 <div id="buttons">
     <button matButton="outlined">

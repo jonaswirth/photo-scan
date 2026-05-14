@@ -8,6 +8,8 @@ import { Line, Point } from './types';
 export class ProcessingService {
   public currentImage?: cv.Mat;
   public currentImageCorners?: Point[]
+
+  //TODO: store the processed images to local storage
   public processedImages: string[] = []
 
   // See prototype/corner_detection.py
@@ -123,6 +125,16 @@ export class ProcessingService {
     cv.warpPerspective(src, dst, transform_mat, size, cv.INTER_LINEAR)
 
     this.currentImage = dst
+  }
+
+  public confirmImage(imageBase64: string) {
+    this.processedImages.push(imageBase64)
+    this.resetCurrentImage()
+  }
+
+  public resetCurrentImage() {
+    this.currentImage = undefined
+    this.currentImageCorners = undefined
   }
 
   private debugMat(mat: cv.Mat): void {

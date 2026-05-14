@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
+import { ProcessingService } from '../processing.service';
 
 @Component({
   selector: 'app-main',
@@ -10,5 +11,8 @@ import { RouterLink } from '@angular/router';
   styleUrl: './main.scss',
 })
 export class Main {
+  public processingService = inject(ProcessingService)
+
+  currentIndex = 1
 
 }

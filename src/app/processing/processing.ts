@@ -32,10 +32,10 @@ export class Processing implements OnInit {
   }
 
   confirm() {
-    if (this.currentImage) {
-      // this.processingService.processedImages.push(this.currentImage)
-      this.processingService.currentImage = undefined;
-    }
+    const canvas = document.getElementById("canvas") as HTMLCanvasElement
+    var base64 = canvas.toDataURL("image/png")
+    this.processingService.confirmImage(base64)
+
     this.router.navigate(["/main"])
   }
 
