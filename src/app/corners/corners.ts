@@ -2,10 +2,12 @@ import { AfterViewInit, Component, ElementRef, inject, OnInit, ViewChild } from 
 import { ProcessingService } from '../processing.service';
 import * as cv from "@techstark/opencv-js"
 import { Point } from '../types';
+import { MatButton } from '@angular/material/button';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-corners',
-  imports: [],
+  imports: [MatButton],
   templateUrl: './corners.html',
   styleUrl: './corners.scss',
 })
@@ -15,6 +17,7 @@ export class Corners implements OnInit, AfterViewInit {
   private readonly EDGES_LINE_WIDTH = 1
 
   private processingService = inject(ProcessingService)
+  private router = inject(Router)
 
   @ViewChild('canvas')
   private canvas?: ElementRef<HTMLCanvasElement>
@@ -53,8 +56,8 @@ export class Corners implements OnInit, AfterViewInit {
   onMouseMove(event: MouseEvent) {
     if (this.corners && this.dragPoint > -1) {
       var pos = this.getPosition(event)
-      this.corners[this.dragPoint].x = pos.x
-      this.corners[this.dragPoint].y = pos.y
+      this.corners[this.dragPoint].x = Math.round(pos.x)
+      this.corners[this.dragPoint].y = Math.round(pos.y)
       this.drawCorners()
     }
   }
@@ -104,5 +107,12 @@ export class Corners implements OnInit, AfterViewInit {
       this.ctx.lineTo(this.corners[(i + 1) % 4].x, this.corners[(i + 1) % 4].y)
     }
     this.ctx.stroke()
+  }
+
+  confirm() {
+    console.log("Confirmed")
+    this.processingService.currentImageCorners = this.corners
+    this.processingService.processImage()
+    this.router.navigate(["/processing"])
   }
 }

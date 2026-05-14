@@ -28,7 +28,6 @@ export class Processing implements OnInit {
     const mat = cv.imread(canvas!)
 
     this.processingService.currentImage = mat
-    const proc = this.processingService.findCorners()
     //cv.imshow(canvas!, proc)
   }
 
