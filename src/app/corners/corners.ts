@@ -74,7 +74,7 @@ export class Corners implements OnInit, AfterViewInit {
       return -1
     }
     for (let i = 0; i < 4; i++) {
-      if (Math.abs(this.corners[i].x - point.x) < this.CORNER_RADIUS && Math.abs(this.corners[i].y - point.y)) {
+      if (Math.abs(this.corners[i].x - point.x) < this.CORNER_RADIUS && Math.abs(this.corners[i].y - point.y) < this.CORNER_RADIUS) {
         return i
       }
     }
